@@ -1,4 +1,4 @@
-const builderKinds={all:'Усе',coffee:'☕ Кава',food:'🍕 Ежа',fish:'🦪 Морапрадукты',market:'🧺 Рынкі і крамы',sight:'📍 Што паглядзець',parking:'🅿 Паркоўка'};
+const builderKinds={all:'Усе',coffee:'☕ Кава',food:'🍕 Ежа',fish:'🦪 Морапрадукты',market:'🧺 Рынкі і крамы',sight:'📍 Што паглядзець',parking:'🅿 Паркоўка',local:'Парады з відэа'};
 const stageNames=['Перад выездам','Па дарозе','На месцы','Па дарозе назад','Пасля вяртання'];
 const spot=(id,title,kind,area,query,desc,site)=>({id,title,kind,area,query,desc,site});
 const baseSpots=[
@@ -47,6 +47,62 @@ const buckets={
  arrival:{label:'Прыбыццё → Артыджыя',start:cta,groups:[[],[],[townParking('molo','Molo Sant’Antonio','Сіракузы',park),...ortSpots]]},
  departure:{label:'Артыджыя → аэрапорт',start:park,groups:[baseSpots,[],[spot('airport','Аэрапорт Катаніі','parking','CTA',cta,'Вярні машыну з запасам. Вылет а 14:40.',airport)]]}
 };
+const localTipIds=new Set(['pescheria','savia','faraglioni','tao-0','tao-1','tao-3','zuccaro','isola','ort-market','ortigia-1','apollo-temple']);
+const localTag=s=>localTipIds.has(s.id.replace(/-(back|home)$/,''))?'<span class="local-tip">Парада мясцовага · з відэа</span>':'';
+function videoSpot(id,title,kind,area,query,desc,site){
+ localTipIds.add(id);
+ return spot(id,title,kind,area,query,desc,site);
+}
+const catTip=(id,title,kind,query,desc,site)=>videoSpot(id,title,kind,'Катанія',query,desc,site);
+const taoTip=(id,title,kind,query,desc,site)=>videoSpot(id,title,kind,'Таарміна',query,desc,site);
+const ortTip=(id,title,kind,query,desc,site)=>videoSpot(id,title,kind,'Артыджыя',query,desc,site);
+const parkingSpot=(id,title,area,query,desc,site)=>spot(id,title,'parking',area,query,desc,site);
+const catParking='https://www.amts.ct.it/parcheggi';
+const taoParking='https://www.asmtaormina.com/gestione-parcheggi-taormina/';
+const molo=parkingSpot('molo','Molo Sant’Antonio','Сіракузы',park,'Паркоўка перад мастом у Артыджыю. Далей зручна пешшу.',ztl);
+const notoParking=parkingSpot('noto-parking','Parcheggio Città di Noto','Нота','Parcheggio Città di Noto Via Cavour 158 Noto','Via Cavour 158, каля гарадскога саду і пачатку Corso Vittorio Emanuele.','https://www.siracusaparcheggi.it/it/');
+const marParking=parkingSpot('mar-parking','Parcheggio Marzamemi Centro','Марцамемі','Parcheggio Marzamemi Centro Via Corrado Montoneri','Via Corrado Montoneri, пешшу да галоўнай плошчы. Правер сезонны рэжым.','https://parcheggimarzamemi.com/');
+const aciCastello=videoSpot('aci-castello','Castello Normanno','sight','Ачы-Кастэла','Castello Normanno Aci Castello Piazza Castello','Замак на лававай скале над морам. Можна сумясціць з Ачы-Трэцай.');
+const aciParking=parkingSpot('aci-parking','Паркоўка каля гавані Ачы-Трэцы','Ачы-Трэца','Parcheggio Lungomare dei Ciclopi Aci Trezza','Шукай пазначаныя парковачныя месцы каля набярэжнай. Правер знакі і аплату.');
+const catCenter=buckets.cat.groups[2];
+Object.assign(catCenter[0],{site:catParking,desc:'Piazza Borsellino, побач з рыбным рынкам і Piazza Duomo.'});
+catCenter.splice(1,0,parkingSpot('corso-sicilia-parking','Parcheggio Corso Sicilia','Катанія','Parcheggio AMTS Corso Sicilia Catania','Альтэрнатыва каля Piazza Stesicoro і Via Etnea.',catParking));
+catCenter.push(
+ catTip('cathedral-cta','Cattedrale di Sant’Agata','sight','Cattedrale di Sant’Agata Catania','Сабор на Piazza Duomo, за крок ад рыбнага рынку.'),
+ catTip('bellini-theater','Teatro Massimo Bellini','sight','Teatro Massimo Bellini Catania','Оперны тэатр на Piazza Vincenzo Bellini. Для візіту ўнутр правер афішу і экскурсіі.','https://www.teatromassimobellini.it/'),
+ catTip('via-etnea','Via Etnea','sight','Piazza Stesicoro Via Etnea Catania','Прайдзі па галоўнай вуліцы ад Piazza Stesicoro ў бок сабора.'),
+ catTip('cat-street','Стрытфуд каля La Pescheria','food','La Pescheria Catania','У відэа раяць стрытфуд. Каля рынку можна ўзяць фрыту з рыбы і морапрадуктаў у Scirocco.','https://www.sciroccolab.com/'),
+ catTip('magri','Выпечка ў Bar Magrì','coffee','Bar Magrì Viale Mario Rapisardi 80 Catania','У Magrì некалькі філіялаў. На мапе — гістарычная кавярня на Viale Mario Rapisardi.','https://www.magrimichelangelo.it/'),
+ catTip('norma','Pasta alla Norma','food','Trattoria U Fucularu Via Euplio Reina 20 Catania','У відэа раяць страву. U Fucularu каля Via Etnea падае яе з баклажанамі і салёнай рыкотай.','https://www.trattoriaufucularu.com/en-gb'),
+ catTip('cavallo','Carne di cavallo','food','Trattoria U Fucularu Via Euplio Reina 20 Catania','У відэа раяць паспрабаваць каніну. У меню U Fucularu ёсць кавалкі і фрыкадэлькі з каніны.','https://www.trattoriaufucularu.com/en-gb')
+);
+buckets.cat.groups[2].push(aciParking,aci[2],aciCastello);
+buckets.tao.groups[1].push(aciParking,aciCastello);
+const taoCenter=buckets.tao.groups[2];
+Object.assign(taoCenter[0],{site:taoParking,desc:'Паўночны ўезд. Правер шатл да старога горада.'});
+taoCenter.splice(1,0,parkingSpot('porta-catania-parking','Parcheggio Porta Catania','Таарміна','Parcheggio Porta Catania Taormina','Паўднёвы ўезд, побач з Corso Umberto і Villa Zuccaro.',taoParking));
+taoCenter.push(
+ taoTip('xxv-aprile','Piazza IX Aprile','sight','Piazza IX Aprile Taormina','Плошча з відам на мора і Этну. На скрыншоце «XXV Aprile», на мапе яна называецца «IX Aprile».'),
+ videoSpot('castelmola','Castelmola','sight','Кастэльмола','Piazza Sant’Antonio Castelmola','Гарадок вышэй за Таарміну. Заплануй асобны заезд да агляднай плошчы.'),
+ taoTip('da-nino','Trattoria da Nino','fish','Trattoria da Nino Via Luigi Pirandello 37 Taormina','Морапрадукты і сіцылійская кухня каля верхняй станцыі канаткі.','https://trattoriadaninotaormina.com/it/')
+);
+buckets.noto.groups[2].unshift(notoParking);
+buckets.noto.groups[2].splice(buckets.noto.groups[2].indexOf(notoSpots[2]),0,marParking);
+buckets.mar.groups[1].push(notoParking);
+buckets.mar.groups[2].unshift(marParking);
+const ortCenter=buckets.ortigia.groups[2];
+ortCenter.unshift(molo);
+ortCenter.push(baseSpots.find(s=>s.id==='apollo-temple'),
+ ortTip('ortigia-island','Ortigia','sight','Ponte Umbertino Siracusa','Перайдзі мост і прагуляйся па завулках старога горада.'),
+ ortTip('duomo-sr','Duomo di Siracusa','sight','Duomo di Siracusa Piazza Duomo','Сабор у цэнтры Артыджыі, на Piazza Duomo.'),
+ ortTip('diana','Fontana di Diana','sight','Fontana di Diana Piazza Archimede Siracusa','Фантан Дыяны пасярод Piazza Archimede.'),
+ videoSpot('neapolis','Parco archeologico della Neapolis','sight','Сіракузы','Parco Archeologico della Neapolis ingresso Via Paradiso Siracusa','Грэчаскі тэатр і Вуха Дыянісія на мацерыку. Правер гадзіны і ўваход.','https://parchiarcheologici.regione.sicilia.it/siracusa/'),
+ ortTip('borderi','Caseificio Borderi','food','Caseificio Borderi Via Emmanuele de Benedictis Siracusa','Паніні з сырам і сіцылійскімі начынкамі на рынку Артыджыі.'),
+ ortTip('schiticchio','Schiticchio','food','Schiticchio Via Cavour 30 Siracusa','Піца на Via Cavour 30 у старым горадзе.','https://www.schiticchio.com/schiticchio-in-via-cavour-ortigia-siracusa-pizzeria-e-ristorante/'),
+ ortTip('cucche','Cucche','food','Mercato di Ortigia Siracusa','Салёная выпечка, часта з сырам і каўбасой. Спытай на рынку ці ў пякарні, ці ёсць сёння.')
+);
+Object.assign(buckets.arrival.groups[2][0],molo);
+buckets.arrival.groups[2].push(...ortCenter.filter(s=>!buckets.arrival.groups[2].some(old=>old.id===s.id)&&s.id!=='burgio'));
 const roundTrips={
  tao:{from:'Parcheggio Lumbi Taormina',back:[aci[3],aci[4],...aci.slice(0,3),scirocco]},
  noto:{from:'Piazza Regina Margherita Marzamemi',back:[...avola,notoSpots[4],notoSpots[0]]},
@@ -58,7 +114,7 @@ const roundTrips={
 for(const [id,r] of Object.entries(roundTrips)){
  const local=buckets[id];
  local.round=r;
- local.groups.push(r.back.map(s=>({...s,id:s.id+'-back'})),[ortSpots[3],baseSpots[0],ortSpots[2]].map(s=>({...s,id:s.id+'-home'})));
+ local.groups.push(r.back.map(s=>({...s,id:s.id+'-back'})),[ortSpots[3],baseSpots[0],ortSpots[2],...ortCenter.filter(s=>['schiticchio','borderi','diana'].includes(s.id))].map(s=>({...s,id:s.id+'-home'})));
 }
 const choose=$('destination');
 const savedBuckets=read('buckets-v1',{});
@@ -112,8 +168,8 @@ function renderChoices(){
  const picked=new Set(items().map(s=>s.id));
  $('kind-filters').innerHTML=Object.entries(builderKinds).map(([id,label])=>`<button class="pill" data-kind="${id}" aria-pressed="${id===kind}">${label}</button>`).join('');
  $('choices').innerHTML=current().groups.map((group,i)=>{
-  const visible=stageFilter!=='all'&&Number(stageFilter)!==i?[]:group.filter(s=>kind==='all'||s.kind===kind);
-  return visible.length?`<div class="stage"><h3>${stageNames[i]}</h3>${visible.map(s=>`<div class="choice"><div class="spot-main">${stopPhoto(s.query)}<div><div class="eyebrow">${safe(s.area)} · ${builderKinds[s.kind]}</div><strong>${safe(s.title)}</strong><p>${safe(s.desc)}</p>${miniLinks(s)}</div></div><button class="pill" data-pick="${s.id}" aria-pressed="${picked.has(s.id)}" aria-label="${safe((picked.has(s.id)?'Прыбраць ':'Дадаць ')+s.title)}">${picked.has(s.id)?'✓':'＋'}</button></div>`).join('')}</div>`:'';
+  const visible=stageFilter!=='all'&&Number(stageFilter)!==i?[]:group.filter(s=>kind==='all'||s.kind===kind||(kind==='local'&&localTag(s)));
+  return visible.length?`<div class="stage"><h3>${stageNames[i]}</h3>${visible.map(s=>`<div class="choice"><div class="spot-main">${stopPhoto(s.query)}<div><div class="eyebrow">${safe(s.area)} · ${builderKinds[s.kind]}</div><strong>${safe(s.title)}</strong>${localTag(s)}<p>${safe(s.desc)}</p>${miniLinks(s)}</div></div><button class="pill" data-pick="${s.id}" aria-pressed="${picked.has(s.id)}" aria-label="${safe((picked.has(s.id)?'Прыбраць ':'Дадаць ')+s.title)}">${picked.has(s.id)?'✓':'＋'}</button></div>`).join('')}</div>`:'';
  }).join('')||'<p class="muted">У гэтым кірунку няма такіх прыпынкаў. Паспрабуй іншы фільтр.</p>';
 }
 function renderBucket(){
@@ -122,9 +178,9 @@ function renderBucket(){
  if(!stops.length){$('bucket-content').innerHTML='<p>Пакуль пусты. Націсні «＋» каля кавярні, рынку ці славутасці, каб дадаць прыпынак.</p>';return}
  const urls=routeParts(b.start,routeQueries(stops,b),b.mode||'driving');
  const inTown=stops.filter(s=>s.stage===2&&s.kind!=='parking'&&s.area===({tao:'Таарміна',cat:'Катанія'}[active]));
- const cityParking=stops.find(s=>s.stage===2&&s.kind==='parking');
+ const cityParking=stops.find(s=>s.stage===2&&s.kind==='parking'&&s.area===({tao:'Таарміна',cat:'Катанія'}[active]));
  const walkUrls=inTown.length?routeParts(cityParking?.query||inTown[0].query,inTown.slice(cityParking?0:1).map(s=>s.query),'walking'):[];
- $('bucket-content').innerHTML=`<p>Старт: <b>${safe(b.start)}</b> · ${stops.length} у спісе</p><ol>${stops.map((s,i)=>`<li class="bucket-row"><div class="spot-main">${stopPhoto(s.query)}<div><strong>${safe(s.title)}</strong><p>${safe(s.area)}</p><select class="stage-select" data-edit-stage="${s.id}" aria-label="${safe('Этап: '+s.title)}">${stageNames.slice(0,b.groups.length).map((label,j)=>`<option value="${j}" ${j===s.stage?'selected':''}>${label}</option>`).join('')}</select>${a(map(s.query),'На мапе')}</div></div><div class="row-actions"><button data-move="${s.id}" data-delta="-1" aria-label="${safe('Вышэй: '+s.title)}" ${i===0?'disabled':''}>↑</button><button data-move="${s.id}" data-delta="1" aria-label="${safe('Ніжэй: '+s.title)}" ${i===stops.length-1?'disabled':''}>↓</button><button data-drop="${s.id}" aria-label="${safe('Прыбраць '+s.title)}">×</button></div></li>`).join('')}</ol><div class="map-actions">${urls.map((url,i)=>a(url,urls.length===1?'Маршрут у Google Maps':`Maps · частка ${i+1} з ${urls.length}`,'cta')).join('')}</div>${urls.length>1?'<p>Доўгі маршрут падзелены на часткі для мабільных Maps. Наступная пачынаецца там, дзе скончылася папярэдняя.</p>':''}${walkUrls.length?`<div class="map-actions">${walkUrls.map((url,i)=>a(url,walkUrls.length===1?'Пешшу па цэнтры':`Пешшу · частка ${i+1}`,'pill')).join('')}</div>`:''}${b.mode?'':'<p>У цэнтрах ёсць пешыя зоны і ZTL. Пакідай машыну на паркоўцы і ідзі да кропак пешшу.</p>'}`;
+ $('bucket-content').innerHTML=`<p>Старт: <b>${safe(b.start)}</b> · ${stops.length} у спісе</p><ol>${stops.map((s,i)=>`<li class="bucket-row"><div class="spot-main">${stopPhoto(s.query)}<div><strong>${safe(s.title)}</strong>${localTag(s)}<p>${safe(s.area)}</p><select class="stage-select" data-edit-stage="${s.id}" aria-label="${safe('Этап: '+s.title)}">${stageNames.slice(0,b.groups.length).map((label,j)=>`<option value="${j}" ${j===s.stage?'selected':''}>${label}</option>`).join('')}</select>${a(map(s.query),'На мапе')}</div></div><div class="row-actions"><button data-move="${s.id}" data-delta="-1" aria-label="${safe('Вышэй: '+s.title)}" ${i===0?'disabled':''}>↑</button><button data-move="${s.id}" data-delta="1" aria-label="${safe('Ніжэй: '+s.title)}" ${i===stops.length-1?'disabled':''}>↓</button><button data-drop="${s.id}" aria-label="${safe('Прыбраць '+s.title)}">×</button></div></li>`).join('')}</ol><div class="map-actions">${urls.map((url,i)=>a(url,urls.length===1?'Маршрут у Google Maps':`Maps · частка ${i+1} з ${urls.length}`,'cta')).join('')}</div>${urls.length>1?'<p>Доўгі маршрут падзелены на часткі для мабільных Maps. Наступная пачынаецца там, дзе скончылася папярэдняя.</p>':''}${walkUrls.length?`<div class="map-actions">${walkUrls.map((url,i)=>a(url,walkUrls.length===1?'Пешшу па цэнтры':`Пешшу · частка ${i+1}`,'pill')).join('')}</div>`:''}${b.mode?'':'<p>У цэнтрах ёсць пешыя зоны і ZTL. Пакідай машыну на паркоўцы і ідзі да кропак пешшу.</p>'}`;
 }
 function renderBuilder(){
  choose.value=active;
@@ -177,6 +233,7 @@ document.addEventListener('click',e=>{
  }
 });
 renderBuilder();
+
 
 
 
