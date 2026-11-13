@@ -9,6 +9,7 @@ const stored=read('saved',[]), favorites=new Set(Array.isArray(stored)?stored:[]
 const moods={all:'Усе',slow:'Без спешкі',sea:'Хачу мора',food:'Хачу смачнага',view:'Хачу відаў',saved:'☆ Захаваныя'};
 const enc=encodeURIComponent;
 const map=q=>'https://www.google.com/maps/search/?api=1&query='+enc(q);
+const wazeLink=query=>a('https://waze.com/ul?q='+enc(query)+'&utm_source=sicilia-piano','Waze');
 function directions(r){const [start,...rest]=r.nav, end=rest.pop();return 'https://www.google.com/maps/dir/?api=1&origin='+enc(start)+'&destination='+enc(end)+'&travelmode='+(r.walk?'walking':'driving')+(rest.length?'&waypoints='+enc(rest.join('|')):'')}
 const safe=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const a=(url,label,klass='')=>`<a class="${klass}" target="_blank" rel="noopener noreferrer" href="${safe(url)}">${safe(label)} ↗</a>`;
@@ -46,7 +47,7 @@ function saveLabel(id){return favorites.has(id)?'★ Захавана':'☆ За
 function openRoute(id,button){
  const r=routes[id];if(!r)return;
  openId=id;trigger=button;
- $('route-body').innerHTML=`${photo(r.pic,true)}<div class="eyebrow">${r.tag}</div><h3 id="dialog-title">${r.title}</h3><p class="muted">${r.desc}</p><div class="actions">${a(directions(r),r.walk?'Пешы маршрут у Maps':'Дарога ў Maps','cta')}<button class="pill" data-build="${id}">Сабраць свой</button>${r.vibe?`<button class="pill" id="fav" aria-pressed="${favorites.has(id)}">${saveLabel(id)}</button>`:''}</div><p class="route-note">${r.note}</p>${r.links?`<div class="stop-links">${r.links.map(([l,u])=>a(u,l)).join('')}</div>`:''}<ol class="stops">${r.stops.map(([time,title,desc,q,site])=>`<li><div class="eyebrow">${time}</div><div class="spot-main">${stopPhoto(q)}<div><strong>${title}</strong><p>${desc}</p><div class="stop-links">${a(map(q),'На мапе')}${site?a(site,'Сайт'):''}</div></div></div></li>`).join('')}</ol>`;
+ $('route-body').innerHTML=`${photo(r.pic,true)}<div class="eyebrow">${r.tag}</div><h3 id="dialog-title">${r.title}</h3><p class="muted">${r.desc}</p><div class="actions">${a(directions(r),r.walk?'Пешы маршрут у Maps':'Дарога ў Maps','cta')}<button class="pill" data-build="${id}">Сабраць свой</button>${r.vibe?`<button class="pill" id="fav" aria-pressed="${favorites.has(id)}">${saveLabel(id)}</button>`:''}</div><p class="route-note">${r.note}</p>${r.links?`<div class="stop-links">${r.links.map(([l,u])=>a(u,l)).join('')}</div>`:''}<ol class="stops">${r.stops.map(([time,title,desc,q,site])=>`<li><div class="eyebrow">${time}</div><div class="spot-main">${stopPhoto(q)}<div><strong>${title}</strong><p>${desc}</p><div class="stop-links">${a(map(q),'На мапе')}${wazeLink(q)}${site?a(site,'Сайт'):''}</div></div></div></li>`).join('')}</ol>`;
  dialog.setAttribute('aria-labelledby','dialog-title');dialog.showModal();dialog.scrollTop=0;
 }
 document.addEventListener('click',e=>{
@@ -65,6 +66,8 @@ dialog.addEventListener('click',e=>{if(e.target===dialog)dialog.close()});
 dialog.addEventListener('close',()=>{(trigger?.isConnected?trigger:document.querySelector(`[data-route="${openId}"]`)||document.querySelector('[data-filter][aria-pressed=true]'))?.focus()});
 $('credits').innerHTML='<div>'+[a(market,'Рынак Артыджыі'),a('https://tour.catania.it/catania/what-to-see/details/pescheria','Рынак Катаніі'),a(cable,'Funivia dell’Etna'),a(airport,'Аэрапорт CTA'),a(ztl,'ZTL у Артыджыі')].join('')+'</div><ul class="photo-credits">'+Object.values(photoLibrary).map(p=>`<li>${a(p.page,p.title)} · ${safe(p.author||'Wikimedia Commons')} · ${a(p.licenseUrl,p.license)} · паменшаная копія</li>`).join('')+'</ul>';
 renderDay();renderCards();
+
+
 
 
 

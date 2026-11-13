@@ -153,7 +153,7 @@ function routeQueries(stops,b){
  }
  return q.filter((place,i)=>i===0?place!==b.start:place!==q[i-1]);
 }
-const miniLinks=s=>`<div class="stop-links">${a(map(s.query),'На мапе')}${s.site?a(s.site,'Сайт'):''}</div>`;
+const miniLinks=s=>`<div class="stop-links">${a(map(s.query),'На мапе')}${wazeLink(s.query)}${s.site?a(s.site,'Сайт'):''}</div>`;
 function routeParts(start,stops,mode){
  const points=[start,...stops],urls=[];
  for(let i=0;i<points.length-1;i+=4){
@@ -180,7 +180,7 @@ function renderBucket(){
  const inTown=stops.filter(s=>s.stage===2&&s.kind!=='parking'&&s.area===({tao:'Таарміна',cat:'Катанія'}[active]));
  const cityParking=stops.find(s=>s.stage===2&&s.kind==='parking'&&s.area===({tao:'Таарміна',cat:'Катанія'}[active]));
  const walkUrls=inTown.length?routeParts(cityParking?.query||inTown[0].query,inTown.slice(cityParking?0:1).map(s=>s.query),'walking'):[];
- $('bucket-content').innerHTML=`<p>Старт: <b>${safe(b.start)}</b> · ${stops.length} у спісе</p><ol>${stops.map((s,i)=>`<li class="bucket-row"><div class="spot-main">${stopPhoto(s.query)}<div><strong>${safe(s.title)}</strong>${localTag(s)}<p>${safe(s.area)}</p><select class="stage-select" data-edit-stage="${s.id}" aria-label="${safe('Этап: '+s.title)}">${stageNames.slice(0,b.groups.length).map((label,j)=>`<option value="${j}" ${j===s.stage?'selected':''}>${label}</option>`).join('')}</select>${a(map(s.query),'На мапе')}</div></div><div class="row-actions"><button data-move="${s.id}" data-delta="-1" aria-label="${safe('Вышэй: '+s.title)}" ${i===0?'disabled':''}>↑</button><button data-move="${s.id}" data-delta="1" aria-label="${safe('Ніжэй: '+s.title)}" ${i===stops.length-1?'disabled':''}>↓</button><button data-drop="${s.id}" aria-label="${safe('Прыбраць '+s.title)}">×</button></div></li>`).join('')}</ol><div class="map-actions">${urls.map((url,i)=>a(url,urls.length===1?'Маршрут у Google Maps':`Maps · частка ${i+1} з ${urls.length}`,'cta')).join('')}</div>${urls.length>1?'<p>Доўгі маршрут падзелены на часткі для мабільных Maps. Наступная пачынаецца там, дзе скончылася папярэдняя.</p>':''}${walkUrls.length?`<div class="map-actions">${walkUrls.map((url,i)=>a(url,walkUrls.length===1?'Пешшу па цэнтры':`Пешшу · частка ${i+1}`,'pill')).join('')}</div>`:''}${b.mode?'':'<p>У цэнтрах ёсць пешыя зоны і ZTL. Пакідай машыну на паркоўцы і ідзі да кропак пешшу.</p>'}`;
+ $('bucket-content').innerHTML=`<p>Старт: <b>${safe(b.start)}</b> · ${stops.length} у спісе</p><ol>${stops.map((s,i)=>`<li class="bucket-row"><div class="spot-main">${stopPhoto(s.query)}<div><strong>${safe(s.title)}</strong>${localTag(s)}<p>${safe(s.area)}</p><select class="stage-select" data-edit-stage="${s.id}" aria-label="${safe('Этап: '+s.title)}">${stageNames.slice(0,b.groups.length).map((label,j)=>`<option value="${j}" ${j===s.stage?'selected':''}>${label}</option>`).join('')}</select><div class="stop-links"></div>${a(map(s.query),'На мапе')}${wazeLink(s.query)}</div></div><div class="row-actions"><button data-move="${s.id}" data-delta="-1" aria-label="${safe('Вышэй: '+s.title)}" ${i===0?'disabled':''}>↑</button><button data-move="${s.id}" data-delta="1" aria-label="${safe('Ніжэй: '+s.title)}" ${i===stops.length-1?'disabled':''}>↓</button><button data-drop="${s.id}" aria-label="${safe('Прыбраць '+s.title)}">×</button></div></li>`).join('')}</ol><div class="map-actions">${urls.map((url,i)=>a(url,urls.length===1?'Маршрут у Google Maps':`Maps · частка ${i+1} з ${urls.length}`,'cta')).join('')}</div>${urls.length>1?'<p>Доўгі маршрут падзелены на часткі для мабільных Maps. Наступная пачынаецца там, дзе скончылася папярэдняя.</p>':''}${walkUrls.length?`<div class="map-actions">${walkUrls.map((url,i)=>a(url,walkUrls.length===1?'Пешшу па цэнтры':`Пешшу · частка ${i+1}`,'pill')).join('')}</div>`:''}${b.mode?'':'<p>У цэнтрах ёсць пешыя зоны і ZTL. Пакідай машыну на паркоўцы і ідзі да кропак пешшу.</p>'}`;
 }
 function renderBuilder(){
  choose.value=active;
@@ -233,6 +233,8 @@ document.addEventListener('click',e=>{
  }
 });
 renderBuilder();
+
+
 
 
 

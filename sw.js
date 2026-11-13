@@ -1,7 +1,7 @@
 importScripts('./photos.js');
 const prefix='sicilia-piano:'+self.registration.scope+':';
-const name=prefix+'2';
-const files=['./index.html','./style.css?v=5','./photos.js','./data.js','./app.js?v=4','./builder.js?v=5','./offline.js','./manifest.webmanifest','./icon.svg','./postcard.svg',...Object.values(photoLibrary).map(p=>p.file)];
+const name=prefix+'3';
+const files=['./index.html','./style.css?v=5','./photos.js','./data.js','./app.js?v=6','./builder.js?v=6','./offline.js','./manifest.webmanifest','./icon.svg','./postcard.svg',...Object.values(photoLibrary).map(p=>p.file)];
 self.addEventListener('install',event=>event.waitUntil((async()=>{
  const cache=await caches.open(name);
  await cache.addAll(files);
@@ -21,4 +21,5 @@ self.addEventListener('fetch',event=>{
   event.respondWith(caches.open(name).then(cache=>cache.match(event.request)).then(hit=>hit||fetch(event.request)));
  }
 });
+
 
